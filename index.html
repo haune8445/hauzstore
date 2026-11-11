@@ -1,0 +1,531 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HAUZ STORE</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090a13;color:#fff;font-family:Arial,sans-serif}
+header{height:65px;background:#111323;border-bottom:1px solid #292943;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.logo{font-size:23px;font-weight:900;letter-spacing:2px;color:#bd9aff}
+button{background:#282944;color:white;border:1px solid #444466;padding:11px 15px;border-radius:9px;cursor:pointer}
+button:hover{background:#6041a0}
+input,select{width:100%;padding:12px;background:#111323;color:white;border:1px solid #41415e;border-radius:8px;margin:6px 0}
+main{max-width:1100px;margin:25px auto;padding:0 15px}
+.card{background:#151729;border:1px solid #30324b;border-radius:14px;padding:18px;margin-bottom:15px}
+h1,h2,h3{color:#c5a7ff}
+.primary{background:linear-gradient(90deg,#7443c5,#426cce);border:0}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.item{background:#202238;padding:12px;border-radius:9px;margin:8px 0;overflow-wrap:anywhere}
+small{color:#aaa}
+#auth{max-width:420px;margin:9vh auto;text-align:center}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#252744;padding:13px 20px;border-radius:10px;display:none}
+.stat{display:inline-block;background:#242640;padding:15px;border-radius:10px;margin:5px}
+.stat b{display:block;font-size:23px;color:#c5a7ff}
+@media(max-width:650px){.grid{grid-template-columns:1fr}header{padding:0 12px}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">HAUZ STORE</div>
+<div id="headerUser"></div>
+</header>
+
+<main>
+
+<section id="auth" class="card">
+<h1>HAUZ STORE</h1>
+<p>Xin Chào Mừng Tới Hauz Store</p>
+
+<div class="tabs">
+<button onclick="showAuth('login')">Đăng nhập</button>
+<button onclick="showAuth('register')">Đăng ký</button>
+</div>
+
+<div id="login">
+<input id="loginName" placeholder="Tên tài khoản">
+<input id="loginPass" type="password" placeholder="Mật khẩu">
+<button class="primary" onclick="login()">ĐĂNG NHẬP</button>
+</div>
+
+<div id="register" class="hidden">
+<input id="regName" placeholder="Tên tài khoản">
+<input id="regEmail" placeholder="Email">
+<input id="regPass" type="password" placeholder="Mật khẩu">
+<button class="primary" onclick="register()">TẠO TÀI KHOẢN</button>
+</div>
+<p id="authMsg"></p>
+<small>Admin demo: Haune / hauz123456</small>
+</section>
+
+<section id="dashboard" class="hidden">
+
+<div class="card">
+<h1>WELCOME TO HAUZ STORE</h1>
+<p>Xin Chào Mừng Tới Hauz Store</p>
+<div id="profile"></div>
+</div>
+
+<div class="tabs">
+<button onclick="page('home')">Trang chủ</button>
+<button onclick="page('games')">Kho game</button>
+<button onclick="page('free')">KEY FREE</button>
+<button onclick="page('keys')">Key của tôi</button>
+<button onclick="page('rewards')">Phần thưởng</button>
+<button id="adminTab" class="hidden" onclick="page('admin')">Admin</button>
+</div>
+
+<div id="home" class="page">
+<div class="grid">
+<div class="card">
+<h2>KHO GAME</h2>
+<p>Khám phá danh sách trò chơi.</p>
+<button onclick="page('games')">VÀO KHO GAME</button>
+</div>
+<div class="card">
+<h2>HAUZ KEY FREE</h2>
+<p>Nhận key miễn phí qua nhiệm vụ demo.</p>
+<button class="primary" onclick="page('free')">NHẬN KEY</button>
+</div>
+<div class="card">
+<h2>KEY CỦA TÔI</h2>
+<button onclick="page('keys')">XEM KEY</button>
+</div>
+<div class="card">
+<h2>ĐIỂM THƯỞNG</h2>
+<p id="homePoints">0 điểm</p>
+<button onclick="page('rewards')">NHẬN THƯỞNG</button>
+</div>
+</div>
+</div>
+
+<div id="games" class="page hidden">
+<div class="card">
+<h2>🎮 KHO GAME</h2>
+<div id="gameList"></div>
+</div>
+</div>
+
+<div id="free" class="page hidden">
+<div class="card">
+<h2>🔑 HAUZ KEY FREE</h2>
+<p>Hoàn thành nhiệm vụ demo để nhận key.</p>
+<div id="freeStats"></div>
+<button class="primary" onclick="startTask()">NHẬN NHIỆM VỤ</button>
+<div id="taskBox"></div>
+<p id="freeMsg"></p>
+</div>
+</div>
+
+<div id="keys" class="page hidden">
+<div class="card">
+<h2>KEY CỦA TÔI</h2>
+<div id="myKeys"></div>
+</div>
+</div>
+
+<div id="rewards" class="page hidden">
+<div class="card">
+<h2>🎁 PHẦN THƯỞNG</h2>
+<p id="points"></p>
+<button onclick="checkin()">ĐIỂM DANH +10</button>
+<hr>
+<h3>Giftcode</h3>
+<input id="giftInput" placeholder="Nhập giftcode">
+<button onclick="redeem()">ĐỔI GIFTCODE</button>
+<p id="rewardMsg"></p>
+</div>
+</div>
+
+<div id="admin" class="page hidden">
+<div class="card">
+<h2>⚙️ HAUZ ADMIN CONTROL</h2>
+<div id="stats"></div>
+</div>
+
+<div class="grid">
+<div class="card">
+<h3>TẠO KEY</h3>
+<input id="keyName" placeholder="Tên key">
+<input id="keyGame" placeholder="Tên game">
+<input id="keyCount" type="number" value="1" min="1" max="500">
+<select id="keyDuration">
+<option value="3600">1 giờ</option>
+<option value="86400">1 ngày</option>
+<option value="604800">7 ngày</option>
+<option value="2592000">30 ngày</option>
+<option value="0">Không giới hạn</option>
+</select>
+<button class="primary" onclick="createKeys()">TẠO KEY</button>
+<div id="created"></div>
+</div>
+
+<div class="card">
+<h3>THÊM LINK VÀO KHO</h3>
+<input id="linkTitle" placeholder="Tên nhiệm vụ">
+<input id="linkUrl" placeholder="Địa chỉ link">
+<button onclick="addLink()">THÊM LINK</button>
+</div>
+
+<div class="card">
+<h3>KHO LINK ADMIN</h3>
+<div id="adminLinks"></div>
+<button class="primary" onclick="publishLinks()">GỬI LINK SANG KEY FREE</button>
+</div>
+
+<div class="card">
+<h3>TẠO GIFTCODE</h3>
+<input id="giftCode" placeholder="Tên giftcode">
+<input id="giftPoints" type="number" value="10">
+<button onclick="createGift()">TẠO GIFTCODE</button>
+<div id="giftResult"></div>
+</div>
+
+<div class="card">
+<h3>THÀNH VIÊN</h3>
+<div id="members"></div>
+</div>
+
+<div class="card">
+<h3>NHẬT KÝ</h3>
+<div id="logs"></div>
+</div>
+</div>
+</div>
+
+</section>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const get=(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+let users=get("hauz_users",[
+ {name:"Haune",email:"admin@hauz.local",pass:"hauz123456",role:"admin",points:0}
+]);
+
+let keys=get("hauz_keys",[]);
+let links=get("hauz_links",[]);
+let gifts=get("hauz_gifts",{});
+let logs=get("hauz_logs",[]);
+let current=null;
+let selectedLink=null;
+
+const games=[
+"Đoán số","Đoán chữ","Sudoku","2048","Minesweeper",
+"Snake","Pong","Breakout","Dino Runner","Space Shooter",
+"Cờ caro","Cờ vua","Cờ tướng","Connect Four",
+"Tower Defense","Xây thành phố","Quản lý nông trại",
+"Memory Cards","Bingo","Dungeon Quest","Pixel RPG",
+"Fantasy Adventure","Treasure Hunter","Ninja Adventure",
+"Monster Battle","Bóng đá mini","Bóng rổ mini","Tennis mini",
+"Bowling","Zombie Survival","Magic World","Dragon Quest",
+"Adventure Land","Puzzle Master","Racing Game",
+"Battle Arena","Kingdom Builder","Space Explorer",
+"Hero Quest","Dark World","Magic Tower","Cyber Runner",
+"Island Survival","Warrior Legend","Galaxy Battle"
+];
+
+function toast(s){
+ $("toast").textContent=s;
+ $("toast").style.display="block";
+ setTimeout(()=>$("toast").style.display="none",2500);
+}
+
+function log(action){
+ logs.unshift(new Date().toLocaleString()+" - "+action);
+ save("hauz_logs",logs);
+}
+
+function showAuth(x){
+ $("login").classList.toggle("hidden",x!=="login");
+ $("register").classList.toggle("hidden",x!=="register");
+}
+
+function register(){
+ const name=$("regName").value.trim();
+ const email=$("regEmail").value.trim();
+ const pass=$("regPass").value;
+
+ if(name.length<3||!email.includes("@")||pass.length<6)
+  return $("authMsg").textContent="Thông tin chưa hợp lệ.";
+
+ if(users.some(u=>u.name===name||u.email===email))
+  return $("authMsg").textContent="Tài khoản hoặc email đã tồn tại.";
+
+ users.push({name,email,pass,role:"member",points:0});
+ save("hauz_users",users);
+ log("Đăng ký: "+name);
+ toast("Đăng ký thành công");
+ showAuth("login");
+}
+
+function login(){
+ const name=$("loginName").value;
+ const pass=$("loginPass").value;
+ const u=users.find(x=>x.name===name&&x.pass===pass);
+
+ if(!u)return $("authMsg").textContent="Sai tài khoản hoặc mật khẩu.";
+
+ current=u;
+ save("hauz_session",u.name);
+ openStore();
+}
+
+function openStore(){
+ $("auth").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
+ $("headerUser").textContent=current.name;
+ $("profile").innerHTML="Tài khoản: "+current.name+
+ "<br>Vai trò: "+current.role+
+ "<br>Điểm: "+current.points+
+ '<br><button onclick="logout()">ĐĂNG XUẤT</button>';
+
+ $("adminTab").classList.toggle("hidden",current.role!=="admin");
+ $("homePoints").textContent=current.points+" điểm";
+
+ renderGames();
+ renderKeys();
+ renderStats();
+ renderLinks();
+}
+
+function logout(){
+ current=null;
+ localStorage.removeItem("hauz_session");
+ location.reload();
+}
+
+function page(id){
+ document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));
+ $(id).classList.remove("hidden");
+ if(id==="admin"&&current.role==="admin"){
+  renderStats();renderLinks();renderMembers();renderLogs();
+ }
+ if(id==="free")renderFree();
+ if(id==="keys")renderKeys();
+}
+
+function renderGames(){
+ $("gameList").innerHTML=games.map(g=>
+ '<div class="item">🔒 '+g+' <small>· Cần key để truy cập</small></div>'
+ ).join("");
+}
+
+function createKeys(){
+ if(current.role!=="admin")return;
+
+ const name=$("keyName").value.trim();
+ const game=$("keyGame").value.trim()||"All games";
+ const count=Math.min(500,Math.max(1,Number($("keyCount").value)||1));
+ const duration=Number($("keyDuration").value);
+
+ if(!name)return toast("Nhập tên key.");
+
+ let created=[];
+
+ for(let i=0;i<count;i++){
+  const value="HAUZ-"+Math.random().toString(36).slice(2,14).toUpperCase();
+  keys.push({
+   value,name,game,duration,
+   owner:null,
+   created:Date.now()
+  });
+  created.push(value);
+ }
+
+ save("hauz_keys",keys);
+ save("hauz_users",users);
+ $("created").innerHTML="<p>Đã tạo "+count+" key:</p>"+created.map(x=>'<div class="item">'+x+'</div>').join("");
+ renderStats();
+ toast("Đã tạo key");
+ log("Admin tạo "+count+" key");
+}
+
+function renderKeys(){
+ const mine=keys.filter(k=>k.owner===current.name);
+ $("myKeys").innerHTML=mine.length?mine.map(k=>
+ '<div class="item"><b>'+k.name+'</b><br>'+k.value+
+ '<br>Game: '+k.game+
+ '<br>Thời hạn: '+(k.duration?k.duration/3600+" giờ":"Không giới hạn")+
+ '</div>'
+ ).join(""):"Chưa có key nào.";
+}
+
+function addLink(){
+ const title=$("linkTitle").value.trim();
+ const url=$("linkUrl").value.trim();
+
+ try{
+  if(!["http:","https:"].includes(new URL(url).protocol))throw Error();
+ }catch{return toast("Link không hợp lệ.");}
+
+ links.push({
+  id:Date.now()+Math.random(),
+  title,url,active:false
+ });
+
+ save("hauz_links",links);
+ $("linkTitle").value="";
+ $("linkUrl").value="";
+ renderLinks();
+ toast("Đã thêm link vào kho");
+ log("Admin thêm link");
+}
+
+function renderLinks(){
+ $("adminLinks").innerHTML=links.length?links.map(l=>
+ '<div class="item"><label><input type="checkbox" class="linkCheck" value="'+l.id+'" style="width:auto"> '+
+ l.title+' - '+(l.active?"Đang hoạt động":"Trong kho")+'</label></div>'
+ ).join(""):"Kho link trống";
+
+ renderFree();
+}
+
+function publishLinks(){
+ document.querySelectorAll(".linkCheck:checked").forEach(c=>{
+  const l=links.find(x=>String(x.id)===c.value);
+  if(l)l.active=true;
+ });
+ save("hauz_links",links);
+ renderLinks();
+ toast("Đã gửi link sang KEY FREE");
+ log("Admin xuất bản link");
+}
+
+function renderFree(){
+ const active=links.filter(l=>l.active);
+ const available=keys.filter(k=>!k.owner);
+
+ $("freeStats").textContent=
+ "Link đang hoạt động: "+active.length+
+ " | Key còn trong kho: "+available.length;
+}
+
+function startTask(){
+ const active=links.filter(l=>l.active);
+ const available=keys.filter(k=>!k.owner);
+
+ if(!active.length)return toast("Hiện chưa có link nhiệm vụ.");
+ if(!available.length)return toast("Kho key đã hết.");
+
+ selectedLink=active[Math.floor(Math.random()*active.length)];
+
+ $("taskBox").innerHTML=
+ '<div class="item"><b>'+selectedLink.title+'</b><br>'+
+ '<a href="'+selectedLink.url+'" target="_blank" rel="noopener">MỞ NHIỆM VỤ</a><br><br>'+
+ '<small>Đây là nhiệm vụ demo, không có xác minh nhà cung cấp thật.</small><br>'+
+ '<button class="primary" onclick="completeDemo()">HOÀN THÀNH DEMO</button></div>';
+}
+
+function completeDemo(){
+ if(!selectedLink)return;
+
+ const key=keys.find(k=>!k.owner);
+ if(!key)return toast("Kho key đã hết.");
+
+ key.owner=current.name;
+ key.issued=Date.now();
+
+ save("hauz_keys",keys);
+ log(current.name+" nhận key demo");
+
+ selectedLink=null;
+ $("taskBox").innerHTML="";
+ $("freeMsg").textContent="Nhận key demo thành công!";
+ renderKeys();
+ renderFree();
+ renderStats();
+}
+
+function checkin(){
+ const day=new Date().toLocaleDateString();
+ const checked=get("hauz_checkins",{});
+
+ if(checked[current.name]===day)
+  return toast("Hôm nay đã điểm danh.");
+
+ checked[current.name]=day;
+ current.points+=10;
+
+ save("hauz_checkins",checked);
+ save("hauz_users",users);
+ save("hauz_session",current.name);
+ $("points").textContent=current.points+" điểm";
+ $("homePoints").textContent=current.points+" điểm";
+ toast("Điểm danh +10 điểm");
+ log(current.name+" điểm danh");
+ openStore();
+ page("rewards");
+}
+
+function createGift(){
+ const code=$("giftCode").value.trim().toUpperCase();
+ const points=Number($("giftPoints").value);
+
+ if(!code||points<1)return toast("Thông tin không hợp lệ.");
+ gifts[code]={points,used:[]};
+ save("hauz_gifts",gifts);
+ $("giftResult").textContent="Đã tạo: "+code;
+ toast("Tạo giftcode thành công");
+ log("Admin tạo giftcode "+code);
+}
+
+function redeem(){
+ const code=$("giftInput").value.trim().toUpperCase();
+ const gift=gifts[code];
+
+ if(!gift)return $("rewardMsg").textContent="Giftcode không tồn tại.";
+ if(gift.used.includes(current.name))
+  return $("rewardMsg").textContent="Bạn đã sử dụng code.";
+
+ gift.used.push(current.name);
+ current.points+=gift.points;
+
+ save("hauz_gifts",gifts);
+ save("hauz_users",users);
+
+ $("rewardMsg").textContent="Nhận được "+gift.points+" điểm.";
+ $("points").textContent=current.points+" điểm";
+ $("homePoints").textContent=current.points+" điểm";
+ log(current.name+" đổi giftcode "+code);
+ openStore();
+ page("rewards");
+}
+
+function renderStats(){
+ $("stats").innerHTML=
+ '<div class="stat"><b>'+users.length+'</b>Thành viên</div>'+
+ '<div class="stat"><b>'+keys.filter(k=>!k.owner).length+'</b>Key còn</div>'+
+ '<div class="stat"><b>'+keys.filter(k=>k.owner).length+'</b>Key đã cấp</div>'+
+ '<div class="stat"><b>'+links.filter(l=>l.active).length+'</b>Link hoạt động</div>';
+}
+
+function renderMembers(){
+ $("members").innerHTML=users.map(u=>
+ '<div class="item">'+u.name+' · '+u.role+' · '+u.points+' điểm</div>'
+ ).join("");
+}
+
+function renderLogs(){
+ $("logs").innerHTML=logs.slice(0,50).map(x=>
+ '<div class="item">'+x+'</div>'
+ ).join("")||"Chưa có nhật ký.";
+}
+
+const saved=localStorage.getItem("hauz_session");
+if(saved){
+ current=users.find(u=>u.name===saved)||null;
+ if(current)openStore();
+}
+</script>
+</body>
+</html>
